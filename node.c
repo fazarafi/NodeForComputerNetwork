@@ -201,9 +201,11 @@ main()
 			   	else if (strcmp(buf,"node\n")==0) {
 			   		send(cli,host,strlen(host),0);
 			   		send(cli,"\n",strlen("\n"),0);
+			   		send(cli,".\n",strlen(".\n"),0);
 			   	}
 			   	else if (strcmp(buf,list)==0) {
 			   		send(cli,"memory\n",strlen("memory\n"),0);
+			   		send(cli,".\n",strlen(".\n"),0);
 			   	}
 			   	else if (strcmp(buf,"version\n")==0) {
 			   		send(cli,"lovely node on ",strlen("lovely node on "),0);
@@ -239,13 +241,19 @@ main()
 			   		buf_len = 0;
 
 			   	}
+			   	else if ((strstr(buf,"fetch")!=NULL)||(strstr(buf,"config")!= NULL)||(strstr(buf,"list")!=NULL)) {
+			   		char msg[MAXLINE] = "";
+			   		strcat (msg,"# Unknown service\n");
+			   		send(cli,msg,strlen(msg),0);
+			   	}
 			   	else {
 			   		char msg[MAXLINE] = "";
 			   		strcat (msg,"# Unknown command. Try cap, list, nodes, config, fetch, version or quit\n");
 			   		send(cli,msg,strlen(msg),0);
 			   	}
 		   	//printf("%s",buf);
-			}
+			   	bzero(buf,MAXLINE);
+ 			}
 
 
 
