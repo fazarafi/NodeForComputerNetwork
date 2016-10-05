@@ -52,6 +52,7 @@ main()
 	struct sockaddr_in server, client;
 	unsigned int len;
 	char mesg[MAXLINE] = "";
+	char list[MAXLINE] = "";
 	int sent;
 	char buf[MAXLINE];
 	int isQuit = 0;
@@ -98,6 +99,10 @@ main()
 			strcat(mesg,"# munin node at ");
 			strcat(mesg,host);
 			strcat(mesg,"\n");
+
+			strcat(list,"list ");
+			strcat(list,host);
+			strcat(list,"\n");
 			send(cli,mesg,strlen(mesg),0);
 			buf_len = 1;
 			while(buf_len) {
@@ -108,6 +113,10 @@ main()
 			   	}
 			   	else if (strcmp(buf,"node\n")==0) {
 			   		send(cli,host,strlen(host),0);
+			   		send(cli,"\n",strlen("\n"),0);
+			   	}
+			   	else if (strcmp(buf,list)==0) {
+			   		send(cli,"memory\n",strlen("memory\n"),0);
 			   	}
 			   	else if (strcmp(buf,"quit\n")==0) {
 			   		isQuit = 1;
