@@ -51,7 +51,7 @@ main()
 	int sock,cli,n;
 	struct sockaddr_in server, client;
 	unsigned int len;
-	char mesg[] = "hello\n";
+	char mesg[MAXLINE] = "";
 	int sent;
 	char buf[MAXLINE];
 	int isQuit = 0;
@@ -95,7 +95,9 @@ main()
 		
 
 		while (isQuit==0)  {
-			//mesg = strcat("# munin node at ",host);
+			strcat(mesg,"# munin node at ");
+			strcat(mesg,host);
+			strcat(mesg,"\n");
 			send(cli,mesg,strlen(mesg),0);
 			buf_len = 1;
 			while(buf_len) {
