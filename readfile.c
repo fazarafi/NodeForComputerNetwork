@@ -40,7 +40,7 @@ int* readfile() {
 
     while ((read = getline(&line, &len, fp)) != -1) {
         //printf("Retrieved line of length %zu :\n", read);
-        //printf("%s", line);
+        printf("%s", line);
         if (i<3) {
             mem[i] = GetNumber(line);
             printf("total %d\n",mem[i]);
@@ -55,7 +55,7 @@ int* readfile() {
     fclose(fp);
     if (line)
         free(line);
-    exit(EXIT_SUCCESS);
+ 
 
     return mem;
 }
@@ -65,6 +65,9 @@ int main(void)
     int* Mem;
     int i;
     Mem = set_malloc(3);
+    for (i=0;i<3;i++) {
+        printf("ea %d\n",Mem[i]);
+    }   
     Mem = readfile();
     
     for (i=0;i<3;i++) {

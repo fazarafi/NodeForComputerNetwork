@@ -42,11 +42,54 @@ static void *set_malloc(size_t size) {
 	return ptr;
 }
 
+//
+int GetNumber(const char *str) {
+    while (!(*str >= '0' && *str <= '9') && (*str != '-') && (*str != '+')) str++;
+    int number;
+    if (sscanf(str, "%d", &number) == 1) {
+        return number;
+    }
+        // No int found
+        return -1; 
+}
 
 
+//read file for fetching memory
+int* readfile() {
+    FILE * fp;
+    char * line = NULL;
+    int j;
+    int* mem;
+
+    mem = set_malloc(3);
+    int i = 0;
+    size_t len = 0;
+    ssize_t read;
+
+    fp = fopen("/proc/meminfo", "r");
+    if (fp == NULL)
+        exit(EXIT_FAILURE);
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        if (i<3) {
+            mem[i] = GetNumber(line);
+            printf("total %d\n",mem[i]);
+            i++;
+
+        }
+    }
+ 
+    fclose(fp);
+    if (line) {
+        free(line);
+    }
+
+    return mem;
+}
 
 main()
 {
+	int* Mem;
 	char* host;
 	int sock,cli,n;
 	struct sockaddr_in server, client;
@@ -113,6 +156,21 @@ main()
                 	send(cli,host,strlen(host),0);
                  	send(cli," version: 1.00\n",strlen(" version: 1.00\n"),0);
 			   	}
+
+			   	else if (strcmp(buf,"fetch memory\n")==0) {
+		   		   	Mem = set_malloc(3);
+					Mem = readfile();
+					char buffer[15];
+					snprintf(buffer, 15, "%d", Mem[2]);
+					send(cli,"used.value ",strlen("used.value "),0);
+                	send(cli,buffer,strlen(buffer),0);
+
+                	snprintf(buffer, 15, "%d", Mem[1]);
+                	send(cli,"free.value ",strlen("used.value "),0);
+                	send(cli,buffer,strlen(buffer),0);
+
+			   	}
+
 			   	else if (strcmp(buf,"quit\n")==0) {
 			   		isQuit = 1;
 			   		buf_len = 0;
