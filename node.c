@@ -107,6 +107,12 @@ main()
 			   	else if (strcmp(buf,"node\n")==0) {
 			   		send(cli,host,strlen(host),0);
 			   	}
+			   	else if (strcmp(buf,"version\n")==0) {
+			   		send(cli,host,strlen(host),0);
+			   		send(cli,"lovely node on ",strlen("lovely node on "),0);
+                	send(cli,host,strlen(host),0);
+                 	send(cli," version: 1.00\n",strlen(" version: 1.00\n"),0);
+			   	}
 			   	else if (strcmp(buf,"quit\n")==0) {
 			   		isQuit = 1;
 			   		buf_len = 0;
