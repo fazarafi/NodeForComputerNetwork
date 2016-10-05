@@ -19,6 +19,7 @@
 #include <fnmatch.h>
 #include <ctype.h>
 #include <spawn.h>
+#include <sys/sysinfo.h>
 
 
 #ifndef HOST_NAME_MAX
@@ -50,7 +51,7 @@ int GetNumber(const char *str) {
         return number;
     }
         // No int found
-        return -1; 
+        return -1;
 }
 
 
@@ -78,13 +79,31 @@ int* readfile() {
 
         }
     }
- 
+
     fclose(fp);
     if (line) {
         free(line);
     }
 
     return mem;
+}
+
+static int ultoc(char* out, unsigned long ul) {
+    unsigned long temp = ul;
+    int n = 1;
+    while (temp > 10) {
+        n++;
+        temp = temp/10;
+    }
+
+
+    temp = ul;
+    int i;
+    for(i = n-1; i >= 0; i--) {
+        out[i] = '0'+temp%10;
+        temp = temp/10;
+    }
+    return n;
 }
 
 main()
@@ -110,7 +129,7 @@ main()
 	server.sin_port = htons(SERV_PORT);
 	server.sin_addr.s_addr = INADDR_ANY;
 	bzero(&server.sin_zero, 8);
-	
+
 	len = sizeof(struct sockaddr_in);
 
 	if ((bind(sock, (struct sockaddr *)&server, len)) == -1)
@@ -123,7 +142,7 @@ main()
 	{
 		perror("listen");
 		exit(-1);
-	} 
+	}
 
 	if((cli = accept(sock, (struct sockaddr *)&client, &len)) ==-1)
 	{
@@ -135,7 +154,7 @@ main()
 	//Set Host Name
 	host = set_malloc(HOST_NAME_MAX + 1);
 	gethostname(host, HOST_NAME_MAX);
-		
+
 
 		while (isQuit==0)  {
 			//mesg = strcat("# munin node at ",host);
@@ -143,10 +162,35 @@ main()
 			buf_len = 1;
 			while(buf_len) {
 				buf_len = recv(cli, buf, MAXLINE,0);
-			   	if (strcmp(buf,"cap\n")==0) {
+			   	if (strcmp(buf,"cap\n")==0)
+			   	{
 			   		send(cli , "cap multigraph dirtyconfig\n" , strlen("cap multigraph dirtyconfig\n") , 0 );
-					
 			   	}
+			   	else if (strcmp(buf,"config memory\n")==0)
+                {
+                    struct sysinfo info;
+                    int n = sysinfo(&info);
+                    char out[255];
+                    char ram[255] = "";
+                    ultoc(out, info.totalram);
+                    strcat(ram,"graph_args --base 1024 -l 0 upper-limit ");
+                    strcat(ram, out);
+                    strcat(ram,"\n");
+                    send(cli,ram,strlen(ram),0);
+                    send(cli,"graph_vlabel Bytes\n",strlen("graph_vlabel Bytes\n"),0);
+                    send(cli,"graph_title Memory usage\n",strlen("graph_title Memory usage\n"),0);
+                    send(cli,"graph_category system\n",strlen("graph_category system\n"),0);
+                    send(cli,"graph_info This graph shows this machine memory.\n",strlen("graph_info This graph shows this machine memory.\n"),0);
+                    send(cli,"graph_order used free\n",strlen("graph_order used free\n"),0);
+                    send(cli,"used.label used\n",strlen("used.label used\n"),0);
+                    send(cli,"used.draw STACK\n",strlen("used.draw STACK\n"),0);
+                    send(cli,"used.info Used memory.\n",strlen("used.info Used memory.\n"),0);
+                    send(cli,"free.label free\n",strlen("free.label free\n"),0);
+                    send(cli,"free.draw STACK\n",strlen("free.draw STACK\n"),0);
+                    send(cli,"free.info Free memory.\n",strlen("free.info Free memory.\n"),0);
+                    send(cli,".\n",strlen(".\n"),0);
+			   	}
+
 			   	else if (strcmp(buf,"node\n")==0) {
 			   		send(cli,host,strlen(host),0);
 			   	}
@@ -174,17 +218,17 @@ main()
 			   	else if (strcmp(buf,"quit\n")==0) {
 			   		isQuit = 1;
 			   		buf_len = 0;
-					
+
 			   	}
 		   	//printf("%s",buf);
-			}			
-   		
-		   	
-		
+			}
+
+
+
 
 		//printf("send %d bytes to client : %s\n", sent, inet_ntoa(client.sin_addr));
 
-		
+
 
 
 	}
