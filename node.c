@@ -206,35 +206,43 @@ main()
 			   		send(cli,"memory\n",strlen("memory\n"),0);
 			   	}
 			   	else if (strcmp(buf,"version\n")==0) {
-			   		send(cli,host,strlen(host),0);
 			   		send(cli,"lovely node on ",strlen("lovely node on "),0);
                 	send(cli,host,strlen(host),0);
-                 	send(cli," version: 1.00\n",strlen(" version: 1.00\n"),0);
+                 	send(cli," version: 1.23\n",strlen(" version: 1.23\n"),0);
 			   	}
 
-			   	else if (strcmp(buf,"fetch memory\n")==0) {
-		   		   	struct sysinfo info;
-		   		   	sysinfo(&info);
-					                    
-                    char used_m[MAXLINE],us[MAXLINE] = "";
-                    char free_m[MAXLINE],fr[MAXLINE] = "";
-	                strcat(used_m,"used.value ");
-					strcat(free_m,"free.value ");
-                    sprintf(us,"%llu",info.bufferram *(unsigned long long)info.mem_unit);
-                    sprintf(fr,"%llu",info.freeram *(unsigned long long)info.mem_unit);
-                    strcat(used_m,us);
-                    strcat(used_m,"\n");
 
-                    strcat(free_m,fr);
-                    strcat(free_m,"\n");
-                    send(cli,used_m,strlen(used_m),0);
-                    send(cli,free_m,strlen(free_m),0);
+			   	else if (strcmp(buf,"fetch memory\n")==0) {
+			   		if ((buf[6]=='m') && (buf[7]=='e') &&(buf[8]=='m') &&(buf[9]=='o') &&(buf[10]=='r') &&(buf[11]=='y') &&(buf[12]=='\n')) {
+			   		   	struct sysinfo info;
+			   		   	sysinfo(&info);
+						                    
+	                    char used_m[MAXLINE],us[MAXLINE] = "";
+	                    char free_m[MAXLINE],fr[MAXLINE] = "";
+		                strcat(used_m,"used.value ");
+						strcat(free_m,"free.value ");
+	                    sprintf(us,"%llu",info.bufferram *(unsigned long long)info.mem_unit);
+	                    sprintf(fr,"%llu",info.freeram *(unsigned long long)info.mem_unit);
+	                    strcat(used_m,us);
+	                    strcat(used_m,"\n");
+
+	                    strcat(free_m,fr);
+	                    strcat(free_m,"\n");
+	                    send(cli,used_m,strlen(used_m),0);
+	                    send(cli,free_m,strlen(free_m),0);
+	                    send(cli,".\n",strlen(".\n"),0);
+	                }
 			   	}
 
 			   	else if (strcmp(buf,"quit\n")==0) {
 			   		isQuit = 1;
 			   		buf_len = 0;
 
+			   	}
+			   	else {
+			   		char msg[MAXLINE] = "";
+			   		strcat (msg,"# Unknown command. Try cap, list, nodes, config, fetch, version or quit\n");
+			   		send(cli,msg,strlen(msg),0);
 			   	}
 		   	//printf("%s",buf);
 			}
