@@ -1,6 +1,10 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/sysinfo.h>
+
+
+
 
 static void *set_malloc(size_t size) {
     void* ptr;
@@ -62,6 +66,8 @@ int* readfile() {
 
 int main(void)
 {
+    struct sysinfo sys_info;
+    sysinfo(&sys_info);
     int* Mem;
     int i;
     Mem = set_malloc(3);
@@ -76,6 +82,18 @@ int main(void)
     for (i=0;i<3;i++) {
         printf("ea %d\n",Mem[i]);
     }
-    
+    /*
+    struct sysinfo info;
+    sysinfo( &info );
+    return (size_t)info.totalram * (size_t)info.mem_unit;
+    */
+    printf("Total Ram: %llu\tFree: %llu\n",
+                sys_info.totalram *(unsigned long long)sys_info.mem_unit,
+                sys_info.freeram *(unsigned long long)sys_info.mem_unit);
 
+
+/*    
+    printf("free %llu\n",sys_info.freeram *(unsigned long long)sys_info);
+    printf("used %llu\n",sys_info.bufferram);
+  */     
 }

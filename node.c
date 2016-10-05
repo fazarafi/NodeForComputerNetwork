@@ -202,17 +202,22 @@ main()
 			   	}
 
 			   	else if (strcmp(buf,"fetch memory\n")==0) {
-		   		   	Mem = set_malloc(3);
-					Mem = readfile();
-					char buffer[15];
-					snprintf(buffer, 15, "%d", Mem[2]);
-					send(cli,"used.value ",strlen("used.value "),0);
-                	send(cli,buffer,strlen(buffer),0);
+		   		   	struct sysinfo info;
+		   		   	sysinfo(&info);
+					                    
+                    char used_m[MAXLINE],us[MAXLINE] = "";
+                    char free_m[MAXLINE],fr[MAXLINE] = "";
+	                strcat(used_m,"used.value ");
+					strcat(free_m,"free.value ");
+                    sprintf(us,"%llu",info.bufferram *(unsigned long long)info.mem_unit);
+                    sprintf(fr,"%llu",info.freeram *(unsigned long long)info.mem_unit);
+                    strcat(used_m,us);
+                    strcat(used_m,"\n");
 
-                	snprintf(buffer, 15, "%d", Mem[1]);
-                	send(cli,"free.value ",strlen("used.value "),0);
-                	send(cli,buffer,strlen(buffer),0);
-
+                    strcat(free_m,fr);
+                    strcat(free_m,"\n");
+                    send(cli,used_m,strlen(used_m),0);
+                    send(cli,free_m,strlen(free_m),0);
 			   	}
 
 			   	else if (strcmp(buf,"quit\n")==0) {
