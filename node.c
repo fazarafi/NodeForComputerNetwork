@@ -182,7 +182,7 @@ main()
                     char out[MAXLINE];
                     char ram[MAXLINE] = "";
                     ultoc(out, info.totalram);
-                    strcat(ram,"graph_args --base 1024 -l 0 upper-limit ");
+                    strcat(ram,"graph_args --base 1024 -l 0 --upper-limit ");
                     strcat(ram, out);
                     strcat(ram,"\n");
                     send(cli,ram,strlen(ram),0);
