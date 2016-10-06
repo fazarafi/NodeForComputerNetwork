@@ -146,7 +146,7 @@ main()
 	strcat(list,"list ");
 	strcat(list,host);
 	strcat(list,"\n");
-		
+
 	strcat(mesg,"# munin node at ");
 	strcat(mesg,host);
 	strcat(mesg,"\n");
@@ -170,7 +170,7 @@ main()
 			buf_len = 1;
 			while(buf_len) {
 				buf_len = recv(cli, buf, MAXLINE,0);
-				printf(buf);
+				printf("%s",buf);
 			   	if ((buf[0]=='c')&&(buf[1]=='a')&&(buf[2]=='p'))
 			   	{
 			   		send(cli , "cap multigraph dirtyconfig\n" , strlen("cap multigraph dirtyconfig\n") , 0 );
@@ -179,8 +179,8 @@ main()
                 {
                     struct sysinfo info;
                     int n = sysinfo(&info);
-                    char out[255];
-                    char ram[255] = "";
+                    char out[MAXLINE];
+                    char ram[MAXLINE] = "";
                     ultoc(out, info.totalram);
                     strcat(ram,"graph_args --base 1024 -l 0 upper-limit ");
                     strcat(ram, out);
@@ -198,6 +198,8 @@ main()
                     send(cli,"free.draw STACK\n",strlen("free.draw STACK\n"),0);
                     send(cli,"free.info Free memory.\n",strlen("free.info Free memory.\n"),0);
                     send(cli,".\n",strlen(".\n"),0);
+                    bzero(out,MAXLINE);
+                    bzero(ram,MAXLINE);
 			   	}
 
 			   	else if (strcmp(buf,"nodes\n")==0) {
@@ -216,12 +218,12 @@ main()
 
 
 			   	else if (strcmp(buf,"fetch memory\n")==0) {
-			   		if ((buf[6]=='m') && (buf[7]=='e') &&(buf[8]=='m') &&(buf[9]=='o') &&(buf[10]=='r') &&(buf[11]=='y') &&(buf[12]=='\n')) {
+			   		//if ((buf[6]=='m') && (buf[7]=='e') &&(buf[8]=='m') &&(buf[9]=='o') &&(buf[10]=='r') &&(buf[11]=='y') &&(buf[12]=='\n')) {
 			   		   	struct sysinfo info;
 			   		   	sysinfo(&info);
-						                    
-	                    char used_m[MAXLINE],us[MAXLINE] = "";
+                        char used_m[MAXLINE],us[MAXLINE] = "";
 	                    char free_m[MAXLINE],fr[MAXLINE] = "";
+
 		                strcat(used_m,"used.value ");
 						strcat(free_m,"free.value ");
 	                    sprintf(us,"%llu",info.bufferram *(unsigned long long)info.mem_unit);
@@ -234,10 +236,14 @@ main()
 	                    send(cli,used_m,strlen(used_m),0);
 	                    send(cli,free_m,strlen(free_m),0);
 	                    send(cli,".\n",strlen(".\n"),0);
-	                }
+	                    bzero(used_m,MAXLINE);
+	                    bzero(free_m,MAXLINE);
+	                    bzero(us,MAXLINE);
+	                    bzero(fr,MAXLINE);
+	                //}
 			   	}
 
-			   	else if (strcmp(buf,"quit \n")==0) {
+			   	else if (/*strcmp(buf,"quit \n"==0*/(buf[0]=='q')&&(buf[1]=='u')&&(buf[2]=='i')&&(buf[3]=='t')) {
 			   		//isQuit = 1;
 			   		buf_len = 0;
 
@@ -263,7 +269,7 @@ main()
  			}
 
  			close(cli);
- 
+
 
 
 		//printf("send %d bytes to client : %s\n", sent, inet_ntoa(client.sin_addr));
@@ -273,7 +279,7 @@ main()
 
 	}
 	close(sock);
-	
+
 	return 0;
 }
 
