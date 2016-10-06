@@ -120,6 +120,7 @@ main()
 	int isQuit = 0;
 	int buf_len;
 
+
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("socket: ");
@@ -139,32 +140,32 @@ main()
 		exit(-1);
 	}
 
-	if ((listen(sock, 5)) == -1)
-	{
-		perror("listen");
-		exit(-1);
-	}
-
-	if((cli = accept(sock, (struct sockaddr *)&client, &len)) ==-1)
-	{
-		perror("accept");
-		exit(-1);
-	}
-
-
-	//Set Host Name
 	host = set_malloc(HOST_NAME_MAX + 1);
 	gethostname(host, HOST_NAME_MAX);
 
+	strcat(list,"list ");
+	strcat(list,host);
+	strcat(list,"\n");
+		
+	strcat(mesg,"# munin node at ");
+	strcat(mesg,host);
+	strcat(mesg,"\n");
 
-		while (isQuit==0)  {
-			strcat(mesg,"# munin node at ");
-			strcat(mesg,host);
-			strcat(mesg,"\n");
+	while (isQuit==0)  {
 
-			strcat(list,"list ");
-			strcat(list,host);
-			strcat(list,"\n");
+
+        if ((listen(sock, 5)) == -1)
+		{
+			perror("listen");
+			exit(-1);
+		}
+
+
+		if((cli = accept(sock, (struct sockaddr *)&client, &len)) ==-1)
+		{
+			perror("accept");
+			exit(-1);
+		}
 			send(cli,mesg,strlen(mesg),0);
 			buf_len = 1;
 			while(buf_len) {
@@ -206,7 +207,6 @@ main()
 			   	}
 			   	else if (strcmp(buf,list)==0) {
 			   		send(cli,"memory\n",strlen("memory\n"),0);
-			   		send(cli,".\n",strlen(".\n"),0);
 			   	}
 			   	else if (strcmp(buf,"version\n")==0) {
 			   		send(cli,"lovely node on ",strlen("lovely node on "),0);
@@ -237,7 +237,13 @@ main()
 	                }
 			   	}
 
-			   	else if (strcmp(buf,"quit\n")==0) {
+			   	else if (strcmp(buf,"quit \n")==0) {
+			   		//isQuit = 1;
+			   		buf_len = 0;
+
+			   	}
+
+			   	else if (strcmp(buf,"keluar\n")==0) {
 			   		isQuit = 1;
 			   		buf_len = 0;
 
@@ -256,7 +262,8 @@ main()
 			   	bzero(buf,MAXLINE);
  			}
 
-
+ 			close(cli);
+ 
 
 
 		//printf("send %d bytes to client : %s\n", sent, inet_ntoa(client.sin_addr));
@@ -265,9 +272,8 @@ main()
 
 
 	}
-	close(cli);
 	close(sock);
-
+	
 	return 0;
 }
 
