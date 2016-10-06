@@ -169,7 +169,8 @@ main()
 			buf_len = 1;
 			while(buf_len) {
 				buf_len = recv(cli, buf, MAXLINE,0);
-			   	if (strcmp(buf,"cap\n")==0)
+				printf(buf);
+			   	if ((buf[0]=='c')&&(buf[1]=='a')&&(buf[2]=='p'))
 			   	{
 			   		send(cli , "cap multigraph dirtyconfig\n" , strlen("cap multigraph dirtyconfig\n") , 0 );
 			   	}
