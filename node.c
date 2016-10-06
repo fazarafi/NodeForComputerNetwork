@@ -198,7 +198,7 @@ main()
                     send(cli,".\n",strlen(".\n"),0);
 			   	}
 
-			   	else if (strcmp(buf,"node\n")==0) {
+			   	else if (strcmp(buf,"nodes\n")==0) {
 			   		send(cli,host,strlen(host),0);
 			   		send(cli,"\n",strlen("\n"),0);
 			   		send(cli,".\n",strlen(".\n"),0);
@@ -265,6 +265,7 @@ main()
 
 	}
 	close(cli);
+	close(sock);
 
 	return 0;
 }
